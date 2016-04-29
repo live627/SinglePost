@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+	<id>SleePy:SinglePost</id>
+	<version>2.0.9</version>
+	<file name="$sourcedir/Display.php">
+		<operation>
+			<search position="after"><![CDATA[
+	// Load the proper template and/or sub template.]]></search>
+			<add><![CDATA[
+	// If we are attempting to view a single post.. Lets make sure its safe to do so..
+	if (isset($_REQUEST['msg']) && (is_array($_REQUEST['msg']) || !is_numeric($_REQUEST['msg'])))
+		unset($_REQUEST['msg']);
+	elseif (isset($_REQUEST['msg']))
+		$context['single-post'] = (int) $_REQUEST['msg'];
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[
+	// Build a list of this board's moderators.]]></search>
+			<add><![CDATA[
+	// Build the link tree for Single Post.. Only if its set...
+	if (isset($context['single-post']))
+	{
+		$context['linktree'][] = array(
+			'url' => $scripturl . '?topic=' . $topic . ';msg=' . $context['single-post'],
+			'name' => $txt['message'] . ' #' . $context['single-post'],
+			'extra_before' => $settings['linktree_inline'] ? $txt['topic'] . ': ' : ''
+		);
+
+		// While we are at it, lets not index this page.
+		$context['robot_no_index'] = true;
+	}
+
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[
+		// What?  It's not like it *couldn't* be only guests in this topic...
+]]></search>
+			<add><![CDATA[
+		// Get the Junk ready.
+		if (isset($context['single-post']) && in_array($context['single-post'], $messages))
+			$messages = array ($context['single-post']);
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[
+		'id' => $message['id_msg'],]]></search>
+			<add><![CDATA[
+		'start' => isset($_REQUEST['start']) ? $_REQUEST['start'] : '',
+]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/Display.template.php">
+		<operation>
+			<search position="replace"><![CDATA[
+									<div class="smalltext">&#171; <strong>', !empty($message['counter']) ? $txt['reply_noun'] . ' #' . $message['counter'] : '', ' ', $txt['on'], ':</strong> ', $message['time'], ' &#187;</div>
+]]></search>
+			<add><![CDATA[
+									<div class="smalltext">&#171; <b>', isset($context['sl-singlepost']) ? ($context['sl-singlepost'] == 0 ? $txt['topic-start'] : $txt['reply_noun'] . ' #' . $context['sl-singlepost']) : ($message['counter'] == 0 ? '<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.' . $message['start'] . ';msg=' . $message['id'] . '">' . $txt['topic-start'] . '</a>' : '<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.' . $message['start'] . ';msg=' . $message['id'] . '">' . $txt['reply_noun'] . ' #' . $message['counter'] . '</a>') ,':</b> ', $message['time'], ' &#187;</div>
+]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/../core/Display.template.php" error="skip">
+		<operation>
+			<search position="replace"><![CDATA[
+							<div class="smalltext">&#171; <strong>', !empty($message['counter']) ? $txt['reply_noun'] . ' #' . $message['counter'] : '', ' ', $txt['on'], ':</strong> ', $message['time'], ' &#187;</div>
+]]></search>
+			<add><![CDATA[
+							<div class="smalltext">&#171; <b>', isset($context['sl-singlepost']) ? ($context['sl-singlepost'] == 0 ? $txt['topic-start'] : $txt['reply_noun'] . ' #' . $context['sl-singlepost']) : ($message['counter'] == 0 ? '<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.' . $message['start'] . ';msg=' . $message['id'] . '">' . $txt['topic-start'] . '</a>' : '<a href="' . $scripturl . '?topic=' . $context['current_topic'] . '.' . $message['start'] . ';msg=' . $message['id'] . '">' . $txt['reply_noun'] . ' #' . $message['counter'] . '</a>') ,':</b> ', $message['time'], ' &#187;</div>
+]]></add>
+		</operation>
+	</file>
+	<file name="$languagedir/Modifications.english.php">
+		<operation>
+			<search position="end"></search>
+			<add><![CDATA[
+$txt['topic-start'] = 'Topic Start';
+]]></add>
+		</operation>
+	</file>
+	<file name="$languagedir/Modifications.english_utf8.php" error="skip">
+		<operation>
+			<search position="end"></search>
+			<add><![CDATA[
+$txt['topic-start'] = 'Topic Start';
+]]></add>
+		</operation>
+	</file>
+</modification>

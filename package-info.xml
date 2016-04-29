@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>SleePy:SinglePost</id>
+	<name>View Single Post</name>
+	<version>2.0.9</version>
+	<type>modification</type>
+	<install for="2.0-2.0.99">
+		<readme>README.txt</readme>
+		<modification>SinglePost-20x.xml</modification>
+	</install>
+	<uninstall for="2.0-2.0.99">
+		<modification reverse="true">SinglePost-20x.xml</modification>
+	</uninstall>
+	<install for="1.1.10-1.1.99">
+		<readme>README.txt</readme>
+		<modification>SinglePost-11x.xml</modification>
+	</install>
+	<uninstall for="1.1.10-1.1.99">
+	<modification reverse="true">SinglePost-11x.xml</modification>
+	</uninstall>
+</package-info>

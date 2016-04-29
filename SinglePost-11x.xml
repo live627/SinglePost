@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+	<id>SleePy:SinglePost</id>
+	<version>2.0.9</version>
+	<file name="$sourcedir/Display.php">
+		<operation>
+			<search position="before"><![CDATA[
+	// What are you gonna display if these are empty?!
+	if (empty($topic))
+		fatal_lang_error('smf232', false);
+]]></search>
+			<add><![CDATA[
+	// If we are attempting to view a single post.. Lets make sure its safe to do so..
+	if (isset($_REQUEST['msg']) && (is_array($_REQUEST['msg']) || !is_numeric($_REQUEST['msg']) ))
+		unset($_REQUEST['msg']);
+	elseif(isset($_REQUEST['msg']))
+		$context['single-post'] = (int) $_REQUEST['msg'];
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[
+	// Build the link tree.
+	$context['linktree'][] = array(
+		'url' => $scripturl . '?topic=' . $topic . '.0',
+		'name' => $topicinfo['subject'],
+		'extra_before' => $settings['linktree_inline'] ? $txt[118] . ': ' : ''
+	);
+]]></search>
+			<add><![CDATA[
+	// Build the link tree for Single Post.. Only if its set...
+	if(isset($context['sl-singlepost']))
+		$context['linktree'][] = array(
+			'url' => $scripturl . '?topic=' . $topic . ';msg='.$context['single-post'],
+			'name' => $txt[146] . ' #' . $context['single-post'],
+			'extra_before' => $settings['linktree_inline'] ? $txt[118] . ': ' : ''
+		);
+]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[
+		// What?  It's not like it *couldn't* be only guests in this topic...
+]]></search>
+			<add><![CDATA[
+		// Get the Junk ready.
+		if(isset($context['single-post']) && in_array($context['single-post'], $messages))
+			$messages = array ($context['single-post']);
+]]></add>
+		</operation>
+		<operation>
+			<search position="before"><![CDATA[
+		'id' => $message['ID_MSG'],]]></search>
+			<add><![CDATA[
+		'start' => isset($_REQUEST['start']) ? $_REQUEST['start'] : '',
+]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/Display.template.php">
+		<operation>
+			<search position="replace"><![CDATA[
+									<div class="smalltext">&#171; <b>', !empty($message['counter']) ? $txt[146] . ' #' . $message['counter'] : '', ' ', $txt[30], ':</b> ', $message['time'], ' &#187;</div></td>
+]]></search>
+			<add><![CDATA[
+									<div class="smalltext">&#171; <b>', isset($context['single-post']) ? ($context['single-post']==0 ? $txt['topic-start'] : $txt[146] . ' #' . $context['single-post'] ) : ($message['counter']==0 ? '<a href="'.$scripturl.'?topic='.$context['current_topic'].'.'.$message['start'].';msg='.$message['id'].'">' . $txt['topic-start'] . '</a>' : '<a href="'.$scripturl.'?topic='.$context['current_topic'].'.'.$message['start'].';msg='.$message['id'].'">' . $txt[146] . ' #' . $message['counter'] . '</a>') ,':</b> ', $message['time'], ' &#187;</div></td>
+]]></add>
+		</operation>
+	</file>
+	<file name="$languagedir/Modifications.english.php">
+		<operation>
+			<search position="end"></search>
+			<add><![CDATA[
+$txt['topic-start'] = 'Topic Start';
+]]></add>
+		</operation>
+	</file>
+</modification>
